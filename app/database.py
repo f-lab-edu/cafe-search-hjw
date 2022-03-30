@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from pathlib import Path
 
 from sqlalchemy import create_engine
@@ -36,9 +37,13 @@ engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
+# @contextmanager
 def get_session():
     session = SessionLocal()
     try:
         yield session
+    except Exception:
+        session.rollback()
+        raise
     finally:
         session.close()
