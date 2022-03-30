@@ -1,15 +1,10 @@
 import uvicorn
 from fastapi import FastAPI
-from pydantic import BaseSettings
+
+from schemas.common import ServerSettings
 
 
 app = FastAPI()
-
-
-class ServerSettings(BaseSettings):
-    SERVER_HOST: str = "0.0.0.0"
-    SERVER_PORT: int = 7000
-    RELOAD: bool = True
 
 
 @app.get("/health")

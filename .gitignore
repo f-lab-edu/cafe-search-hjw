@@ -152,4 +152,8 @@ dmypy.json
 # Support for Project snippet scope
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5cba2f85456f925b4205182e3be04cab36a01907
 migrations/
