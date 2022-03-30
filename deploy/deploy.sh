@@ -1,54 +1,60 @@
 #!/bin/bash
 
 APP_NAME=cafe-search
-DEPLOY_DIR=/root/jw/git-action/deploy
+TEST_RANGE=30
+NCP_HOST=$NCP_DOCKER_HOST:$NCP_DOCKER_PORT
+BASE_DIR=$PWD
+CA_PATH="$BASE_DIR/ca.pem"
+CERT_PATH="$BASE_DIR/cert.pem"
+KEY_PATH="$BASE_DIR/key.pem"
 
-EXIST_BLUE=$(docker-compose -p ${APP_NAME}-blue -f ${DEPLOY_DIR}/docker-compose-blue.yml ps | grep Up)
+EXIST_BLUE=$(docker-compose -H $NCP_HOST --tlscacert=$CA_PATH --tlscert=$CERT_PATH --tlskey=$KEY_PATH --tlsverify -p $APP_NAME-blue -f docker-compose-blue.yml ps | grep Up)
 
-if [ -z "$EXIST_BLUE" ]; then
+if [ -z "${EXIST_BLUE}" ]; then
     echo "blue up"
     IDLE_PORT=8000
-    docker-compose -p ${APP_NAME}-blue -f ${DEPLOY_DIR}/docker-compose-blue.yml up -d
+    docker-compose -H $NCP_HOST --tlscacert=$CA_PATH --tlscert=$CERT_PATH --tlskey=$KEY_PATH --tlsverify -p $APP_NAME-blue -f docker-compose-blue.yml up -d
 
 else
     echo "green up"
     IDLE_PORT=8001
-    docker-compose -p ${APP_NAME}-green -f ${DEPLOY_DIR}/docker-compose-green.yml up -d
+    docker-compose -H ${NCP_HOST} --tlscacert=$CA_PATH --tlscert=$CERT_PATH --tlskey=$KEY_PATH --tlsverify -p $APP_NAME-green -f docker-compose-green.yml up -d
 fi 
 
-echo "> Health check 시작합니다."
-echo "> curl -s http://0.0.0.0:$IDLE_PORT/health"
+echo "Health check 시작합니다."
+echo "curl -s http://0.0.0.0:$IDLE_PORT/health"
 sleep 1
 
-for retry_count in {1..100}
+for retry_count in {1..$TEST_RANGE}
 do
+
 response=$(curl -s http://0.0.0.0:$IDLE_PORT/health)
 up_count=$(echo $response | grep 'UP' | wc -l)
 
 if [ $up_count -ge 1 ]
 then
-    echo "> Health check 성공"
+    echo "Health check 성공"
     break
 else
-    echo "> Health check: ${response}"
+    echo "Health check: ${response}"
 fi
 
-if [ $retry_count -eq 100 ]
+if [ $retry_count -eq $TEST_RANGE ]
 then
-    echo "> Health check 실패. "
-    echo "> Nginx에 연결하지 않고 배포를 종료합니다."
+    echo "Health Check 실패. "
+    echo "배포를 종료합니다."
     exit 1
 fi
 done
 
-docker exec -it proxy sh /scripts/switch-serve.sh ${IDLE_PORT}
-docker exec -it proxy service nginx reload
+docker -H $NCP_HOST --tlscacert=$CA_PATH --tlscert=$CERT_PATH --tlskey=$KEY_PATH --tlsverify exec proxy sh /scripts/switch-serve.sh $IDLE_PORT
+docker -H $NCP_HOST --tlscacert=$CA_PATH --tlscert=$CERT_PATH --tlskey=$KEY_PATH --tlsverify exec proxy service nginx reload
 
-if [ -z "$EXIST_BLUE" ]; then
-    docker-compose -p ${APP_NAME}-green -f ${DEPLOY_DIR}/docker-compose-green.yml down
+if [ -z "${EXIST_BLUE}" ]; then
+    docker-compose -H $NCP_HOST --tlscacert=$CA_PATH --tlscert=$CERT_PATH --tlskey=$KEY_PATH --tlsverify -p $APP_NAME-green -f docker-compose-green.yml down
 
 else
-    docker-compose -p ${APP_NAME}-blue -f ${DEPLOY_DIR}/docker-compose-blue.yml down
+    docker-compose -H $NCP_HOST --tlscacert=$CA_PATH --tlscert=$CERT_PATH --tlskey=$KEY_PATH --tlsverify -p $APP_NAME-blue -f docker-compose-blue.yml down
 fi
-echo "> 배포 성공 Nginx Current Proxy Port: $IDLE_PORT"
+echo "배포 성공 Proxy Port: $IDLE_PORT"
 exit 0

@@ -2,9 +2,9 @@ version: "3.8"
 
 services:
   test:
-    image: ${DOCKERHUB_USERNAME}/test:${RELEASE_VERSION}
+    image: $NCP_REG_ENDPOINT/$APP_NAME:$RELEASE_VERSION
     ports:
-      - 8001:${SERVER_PORT}
+      - 8001:$SERVER_PORT
     environment:
-      SERVER_PORT: ${SERVER_PORT}
-      RELOAD: ${RELOAD}
+      SERVER_PORT: $SERVER_PORT
+      RELOAD: $RELOAD

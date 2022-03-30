@@ -1,70 +1,66 @@
-name: Build and Push Docker Image
+name: CI/CD
 on:
   push:
     tags:
       - "v*"
 jobs:
-  build-and-push-image:
+  CI:
     runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.setenv.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/v}" >> $GITHUB_ENV
+      - id: setenv
+        name: Set env
+        run: echo "::set-output name=tag::${GITHUB_REF#refs/*/v}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Login to DockerHub
+      - name: Login to NCP Container Registry
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.NCP_ACCESS_KEY }}
+          password: ${{ secrets.NCP_SECRET_KEY }}
+          registry: ${{ secrets.NCP_REG_ENDPOINT }}
 
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/test:${{ env.RELEASE_VERSION }}
+          tags: ${{ secrets.NCP_REG_ENDPOINT }}/cafe-search:${{ steps.setenv.outputs.tag }}
 
-  Deploy:
-    needs: build-and-push-image
+  CD:
+    needs: CI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/v}" >> $GITHUB_ENV
-
-      - name: copy file via ssh password
-        uses: appleboy/scp-action@master
+      - name: Login to NCP Container Registry
+        uses: docker/login-action@v1
         with:
-          host: ${{ secrets.NCP_HOST }}
-          username: ${{ secrets.NCP_USERNAME }}
-          port: ${{ secrets.NCP_PORT }}
-          key: ${{ secrets.PRIVATE_KEY }}
-          source: "deploy/*"
-          target: "/root/jw/git-action"
+          username: ${{ secrets.NCP_ACCESS_KEY }}
+          password: ${{ secrets.NCP_SECRET_KEY }}
+          registry: ${{ secrets.NCP_REG_ENDPOINT }}
 
       - name: Deploy
-        uses: appleboy/ssh-action@master
+        working-directory: ./deploy
         env:
-          SERVER_PORT: 7000
-          RELOAD: ${{ secrets.RELOAD }}
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
-        with:
-          host: ${{ secrets.NCP_HOST }}
-          port: ${{ secrets.NCP_PORT }}
-          username: ${{ secrets.NCP_USERNAME }}
-          key: ${{ secrets.PRIVATE_KEY }}
-          envs: SERVER_PORT, RELOAD, DOCKERHUB_USERNAME, RELEASE_VERSION
-          script: |
-            export SERVER_PORT=$SERVER_PORT
-            export RELOAD=$RELOAD
-            export DOCKERHUB_USERNAME=$DOCKERHUB_USERNAME
-            export RELEASE_VERSION=$RELEASE_VERSION
-            sh /root/jw/git-action/deploy/deploy.sh
+          SERVER_PORT: 8000
+          RELOAD: 0
+          RELEASE_VERSION: ${{ needs.CI.outputs.image-tag }}
+          NCP_REG_ENDPOINT: ${{ secrets.NCP_REG_ENDPOINT }}
+          NCP_DOCKER_HOST: ${{ secrets.NCP_HOST }}
+          NCP_DOCKER_PORT: ${{ secrets.NCP_DOCKER_PORT }}
+          CA_CERT: ${{ secrets.DOCKER_CA_CERT }}
+          CERT: ${{ secrets.DOCKER_CERT }}
+          KEY: ${{ secrets.DOCKER_KEY }}
+        run: |
+          echo -n "$CA_CERT" | base64 --decode > ca.pem
+          echo -n "$CERT" | base64 --decode > cert.pem
+          echo -n "$KEY" | base64 --decode > key.pem
+          sh deploy.sh
