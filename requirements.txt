@@ -5,3 +5,5 @@ PyMySQL==1.0.2
 cryptography==36.0.2
 python-dotenv==0.19.2
 bcrypt==3.2.0
+PyJWT==2.3.0
+python-multipart==0.0.5
