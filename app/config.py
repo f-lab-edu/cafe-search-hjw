@@ -19,6 +19,7 @@ class Settings(BaseSettings):
 
     TOKEN_SECRET_KEY: str
     HASHING_ALGORITHM: str
+    TOKEN_EXPIRATION: int
 
     class Config:
         env_file = str(BASE_DIR / ".env")
