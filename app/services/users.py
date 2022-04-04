@@ -13,7 +13,7 @@ from schemas import users, common
 from config import settings
 
 
-def check_user_exist(session: Session, username: str):
+def check_user_exist(session: Session, username: str) -> common.User:
     user = (
         session.query(models.User)
         .filter(models.User.username == username, models.User.is_deleted == 0)
@@ -21,8 +21,6 @@ def check_user_exist(session: Session, username: str):
     )
     if user:
         return user
-    else:
-        False
 
 
 def create_user(session: Session, user: users.UserCreate):
@@ -41,17 +39,15 @@ def delete_user(session: Session, username: str):
     session.commit()
 
 
-def sign_in(session: Session, username: str, password: str):
+def sign_in(session: Session, username: str, password: str) -> common.User:
     user = check_user_exist(session, username)
     if not user:
         raise HTTPException(status_code=404, detail="USER_DOES_NOT_EXIST")
     if bcrypt.checkpw(password.encode("utf-8"), user.password.encode("utf-8")):
         return user
-    else:
-        raise HTTPException(status_code=403, detail="INVALID_PASSWORD")
 
 
-def create_token(user: common.User):
+def create_token(user: common.User) -> str:
     payload = {
         "username": user.username,
         "type_id": str(user.type_id),
