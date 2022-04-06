@@ -14,7 +14,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
-    type_id: UserType = 2
+    type_id: UserType = UserType.USER
 
 
 class Token(BaseModel):

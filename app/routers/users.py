@@ -2,13 +2,14 @@ from fastapi import APIRouter, HTTPException, Depends, Path
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from jwt.exceptions import InvalidSignatureError, DecodeError, ExpiredSignatureError
 
 from database import get_session
 from schemas.users import UserCreate, Token
 from services import users
 
 router = APIRouter()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/sign_in")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/signin")
 
 
 @router.post("/register")
@@ -40,9 +41,15 @@ async def sign_out(
 
     except HTTPException as e:
         return JSONResponse(content=dict(msg=e.detail), status_code=e.status_code)
+    except InvalidSignatureError as e:
+        return JSONResponse(content=dict(msg=e.detail), status_code=e.status_code)
+    except DecodeError as e:
+        return JSONResponse(content=dict(msg=e.detail), status_code=e.status_code)
+    except ExpiredSignatureError as e:
+        return JSONResponse(content=dict(msg=e.detail), status_code=e.status_code)
 
 
-@router.post("/sign_in", response_model=Token)
+@router.post("/signin", response_model=Token)
 async def sign_in(
     session: Session = Depends(get_session),
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -52,7 +59,8 @@ async def sign_in(
         if not user:
             raise HTTPException(status_code=403, detail="INVALID_PASSWORD")
         access_token = users.create_token(user)
-        return {"access_token": access_token, "token_type": "bearer"}
+        res = {"access_token": access_token, "token_type": "bearer"}
+        return JSONResponse(content=res, status_code=200)
 
     except HTTPException as e:
         return JSONResponse(content=dict(msg=e.detail), status_code=e.status_code)

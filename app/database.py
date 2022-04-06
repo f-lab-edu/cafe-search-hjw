@@ -3,7 +3,6 @@ from sqlalchemy.orm import sessionmaker
 
 from config import settings
 
-
 DATABASE_URL = (
     "mysql+pymysql://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}?charset=utf8mb4".format(
         USER=settings.DB_USER,

@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from fastapi.security.utils import get_authorization_scheme_param
 from starlette.requests import Request
-from jwt.exceptions import InvalidSignatureError, DecodeError, ExpiredSignatureError
 
 from models import models
 from schemas import users, common
@@ -26,7 +25,9 @@ def check_user_exist(session: Session, username: str) -> common.User:
 def create_user(session: Session, user: users.UserCreate):
     hash_password = bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt())
     new_user = models.User(
-        username=user.username, password=hash_password, type_id=user.type_id.value
+        username=user.username,
+        password=hash_password.decode("utf-8"),
+        type_id=user.type_id.value,
     )
     session.add(new_user)
     session.commit()
@@ -62,21 +63,14 @@ def create_token(user: common.User) -> str:
 
 
 def check_permission(request: Request):
-    try:
-        authorization = request.headers.get("Authorization")
-        username = request.path_params.get("username")
-        _, token = get_authorization_scheme_param(authorization)
-        decode_token = jwt.decode(
-            jwt=token,
-            key=settings.TOKEN_SECRET_KEY,
-            algorithms=settings.HASHING_ALGORITHM,
-        )
+    authorization = request.headers.get("Authorization")
+    username = request.path_params.get("username")
+    _, token = get_authorization_scheme_param(authorization)
+    decode_token = jwt.decode(
+        jwt=token,
+        key=settings.TOKEN_SECRET_KEY,
+        algorithms=settings.HASHING_ALGORITHM,
+    )
 
-        if int(decode_token["type_id"]) != 1 and username != decode_token["username"]:
-            raise HTTPException(status_code=403, detail="UNAUTHORIZED")
-    except InvalidSignatureError:
-        raise HTTPException(status_code=400, detail="SIGNATURE_VERIFICATION_FAILED")
-    except DecodeError:
-        raise HTTPException(status_code=400, detail="DECODE_ERROR")
-    except ExpiredSignatureError:
-        raise HTTPException(status_code=400, detail="EXPIRED_TOKEN")
+    if int(decode_token["type_id"]) != 1 and username != decode_token["username"]:
+        raise HTTPException(status_code=403, detail="UNAUTHORIZED")

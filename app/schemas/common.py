@@ -1,5 +1,7 @@
 from typing import List
 
+from pydantic import BaseModel
+
 from .users import UserBase
 from .cafes import CafeBase, FacilityBase
 from .comments import CommentBase
@@ -43,3 +45,9 @@ class Facility(FacilityBase):
 
     class Config:
         orm_mode = True
+
+
+class Payload(BaseModel):
+    username: str
+    type_id: str
+    exp: int
