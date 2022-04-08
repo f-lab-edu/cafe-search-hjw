@@ -7,6 +7,7 @@ from config import settings
 
 app = FastAPI()
 app.include_router(users.router, prefix="/users", tags=["users"])
+app.include_router(users.router, prefix="/comments", tags=["comments"])
 
 
 if __name__ == "__main__":

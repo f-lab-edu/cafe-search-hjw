@@ -48,6 +48,6 @@ class Facility(FacilityBase):
 
 
 class Payload(BaseModel):
-    username: str
-    type_id: str
+    user_id: int
+    type_id: int
     exp: int
