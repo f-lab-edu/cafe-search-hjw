@@ -94,4 +94,4 @@ def test_delete_user_permission_fail(client):
     )
 
     assert response.status_code == 403
-    assert response.json() == {"detail": "UNAUTHORIZED"}
+    assert response.json() == {"msg": "UNAUTHORIZED"}

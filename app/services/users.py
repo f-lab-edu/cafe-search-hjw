@@ -50,8 +50,8 @@ def sign_in(session: Session, username: str, password: str) -> common.User:
 
 def create_token(user: common.User) -> str:
     payload = {
-        "username": user.username,
-        "type_id": str(user.type_id),
+        "user_id": user.id,
+        "type_id": user.type_id,
         "exp": datetime.utcnow() + timedelta(minutes=settings.TOKEN_EXPIRATION),
     }
     access_token = jwt.encode(
