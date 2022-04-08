@@ -5,7 +5,7 @@ import jwt
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from fastapi.security.utils import get_authorization_scheme_param
-from starlette.requests import Request
+from jwt.exceptions import InvalidSignatureError, DecodeError, ExpiredSignatureError
 
 from models import models
 from schemas import users, common
@@ -62,15 +62,20 @@ def create_token(user: common.User) -> str:
     return access_token
 
 
-def check_permission(request: Request):
-    authorization = request.headers.get("Authorization")
-    username = request.path_params.get("username")
-    _, token = get_authorization_scheme_param(authorization)
-    decode_token = jwt.decode(
-        jwt=token,
-        key=settings.TOKEN_SECRET_KEY,
-        algorithms=settings.HASHING_ALGORITHM,
-    )
+def decode_token(authorization: str) -> common.Payload:
+    try:
+        _, token = get_authorization_scheme_param(authorization)
+        decode_token = jwt.decode(
+            jwt=token,
+            key=settings.TOKEN_SECRET_KEY,
+            algorithms=settings.HASHING_ALGORITHM,
+        )
+        payload = common.Payload(**decode_token)
+        return payload
 
-    if int(decode_token["type_id"]) != 1 and username != decode_token["username"]:
-        raise HTTPException(status_code=403, detail="UNAUTHORIZED")
+    except InvalidSignatureError:
+        raise HTTPException(detail="SIGNATURE_VERIFICATION_FAILED", status_code=400)
+    except DecodeError:
+        raise HTTPException(detail="DECODE_ERROR", status_code=400)
+    except ExpiredSignatureError:
+        raise HTTPException(detail="SIGNATURE_EXPIRED", status_code=400)
