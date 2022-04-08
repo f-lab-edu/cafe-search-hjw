@@ -23,6 +23,7 @@ class UserInDB(User):
 
 
 class Cafe(CafeBase):
+    id: int
     comments: List["Comment"] = []
     liked_users: List["User"] = []
     facilities: List["Facility"] = []
