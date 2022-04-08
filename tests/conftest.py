@@ -13,13 +13,14 @@ import sys
 sys.path.append(str(Path(__file__).resolve().parents[1] / "app"))
 from models.models import Base, UserType
 from database import get_session
-from routers import users
+from routers import users, cafes
 from config import settings
 
 
 def start_application():
     app = FastAPI()
     app.include_router(users.router, prefix="/users", tags=["users"])
+    app.include_router(cafes.router, prefix="/cafes", tags=["cafes"])
     return app
 
 
