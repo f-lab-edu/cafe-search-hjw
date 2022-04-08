@@ -72,5 +72,3 @@ async def update_cafe(
 
     except HTTPException as e:
         return JSONResponse(content=dict(msg=e.detail), status_code=e.status_code)
-    except ValueError as e:
-        return JSONResponse(content=dict(msg=e.detail), status_code=e.status_code)
