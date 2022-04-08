@@ -38,7 +38,7 @@ async def sign_out(
         if not user:
             raise HTTPException(status_code=404, detail="USER_DOES_NOT_EXIST")
         payload = users.decode_token(authorization)
-        if int(payload.type_id) != 1 and user.username != payload.username:
+        if payload.type_id != 1 and user.id != payload.user_id:
             raise HTTPException(status_code=403, detail="UNAUTHORIZED")
         users.delete_user(session, username)
         return JSONResponse(content=dict(msg="DELETE_SUCCESS"), status_code=201)
