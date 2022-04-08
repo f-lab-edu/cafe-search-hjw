@@ -25,8 +25,8 @@ def delete_comment(session: Session, comment_id: int):
     session.commit()
 
 
-def update_comment(session: Session, comment_id: int, comment: CommentBase):
+def update_comment(session: Session, comment_id: int, comment_info: CommentBase):
     session.query(models.Comment).filter(models.Comment.id == comment_id).update(
-        {"content": comment.content}
+        comment_info.dict(exclude_none=True)
     )
     session.commit()
