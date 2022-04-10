@@ -1,10 +1,12 @@
 import uvicorn
 from fastapi import FastAPI
 
-from schemas.common import ServerSettings
+from routers import users
+from config import settings
 
 
 app = FastAPI()
+app.include_router(users.router, prefix="/users", tags=["users"])
 
 
 @app.get("/health")
@@ -13,10 +15,9 @@ async def health_check():
 
 
 if __name__ == "__main__":
-    server = ServerSettings()
     uvicorn.run(
         "main:app",
-        host=server.SERVER_HOST,
-        port=server.SERVER_PORT,
-        reload=server.RELOAD,
+        host=settings.SERVER_HOST,
+        port=settings.SERVER_PORT,
+        reload=settings.RELOAD,
     )
