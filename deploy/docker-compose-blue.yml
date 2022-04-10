@@ -1,0 +1,10 @@
+version: "3.8"
+
+services:
+  test:
+    image: $NCP_REG_ENDPOINT/$APP_NAME:$RELEASE_VERSION
+    ports:
+      - 8000:$SERVER_PORT
+    environment:
+      SERVER_PORT: $SERVER_PORT
+      RELOAD: $RELOAD

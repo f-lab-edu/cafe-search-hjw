@@ -7,6 +7,11 @@ from schemas.common import ServerSettings
 app = FastAPI()
 
 
+@app.get("/health")
+async def health_check():
+    return {"status": "UP"}
+
+
 if __name__ == "__main__":
     server = ServerSettings()
     uvicorn.run(
