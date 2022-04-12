@@ -1,7 +1,8 @@
 #!/bin/bash
 
-APP_NAME=cafe-search
-TEST_RANGE=30
+export APP_NAME=cafe-search
+export TEST_RANGE=30
+
 NCP_HOST=$NCP_DOCKER_HOST:$NCP_DOCKER_PORT
 BASE_DIR=$PWD
 CA_PATH="$BASE_DIR/ca.pem"
@@ -35,7 +36,7 @@ if [ $up_count -ge 1 ]
 then
     echo "Health check 성공"
     break
-else
+else    
     echo "Health check: ${response}"
 fi
 
@@ -57,4 +58,4 @@ else
     docker-compose -H $NCP_HOST --tlscacert=$CA_PATH --tlscert=$CERT_PATH --tlskey=$KEY_PATH --tlsverify -p $APP_NAME-blue -f docker-compose-blue.yml down
 fi
 echo "배포 성공 Proxy Port: $IDLE_PORT"
-exit 0
+exit 0  
