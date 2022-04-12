@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parents[1]
 
 
 class Settings(BaseSettings):
-    SERVER_HOST: str = "localhost"
+    SERVER_HOST: str = "0.0.0.0"
     SERVER_PORT: int = 8000
     RELOAD: bool = True
 
