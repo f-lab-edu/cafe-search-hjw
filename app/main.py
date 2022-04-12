@@ -10,6 +10,11 @@ app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(cafes.router, prefix="/cafes", tags=["cafes"])
 
 
+@app.get("/health")
+async def health_check():
+    return {"status": "UP"}
+
+
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",

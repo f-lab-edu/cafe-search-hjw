@@ -1,0 +1,9 @@
+*.env
+*.ini
+*.md
+.cache
+.git
+.github
+.vscode
+migrations
+__pycache__
