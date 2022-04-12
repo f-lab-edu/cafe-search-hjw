@@ -52,3 +52,4 @@ class Payload(BaseModel):
     user_id: int
     type_id: int
     exp: int
+    scopes: List[str]
