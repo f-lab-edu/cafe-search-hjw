@@ -59,7 +59,7 @@ def test_create_comment_cafe_not_exist_fail(client):
     )
 
     assert response.status_code == 404
-    assert response.json() == {"msg": "CAFE_DOES_NOT_EXIST"}
+    assert response.json() == {"detail": "CAFE_DOES_NOT_EXIST"}
 
 
 def test_delete_comment_success(client):
@@ -132,7 +132,7 @@ def test_delete_comment_not_exist_fail(client):
     )
 
     assert response.status_code == 404
-    assert response.json() == {"msg": "COMMENT_DOES_NOT_EXIST"}
+    assert response.json() == {"detail": "COMMENT_DOES_NOT_EXIST"}
 
 
 def test_update_comment_success(client):
@@ -233,7 +233,7 @@ def test_update_comment_permission_fail(client):
     )
 
     assert response.status_code == 403
-    assert response.json() == {"msg": "UNAUTHORIZED"}
+    assert response.json() == {"detail": "UNAUTHORIZED"}
 
 
 def test_update_comment_invalid_field_fail(client):
