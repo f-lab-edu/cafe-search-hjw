@@ -56,8 +56,8 @@ Table(
 class Cafe(Base, BaseMixin):
     __tablename__ = "cafes"
 
-    name = Column(String(45), unique=True, nullable=False)
-    address = Column(String(100), nullable=False)
+    name = Column(String(200), unique=True, nullable=False)
+    address = Column(String(200), nullable=False)
     lat = Column(Float, nullable=False)
     lon = Column(Float, nullable=False)
     rep_number = Column(String(45))
