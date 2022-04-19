@@ -60,7 +60,7 @@ class Cafe(Base, BaseMixin):
     address = Column(String(100), nullable=False)
     lat = Column(Float, nullable=False)
     lon = Column(Float, nullable=False)
-    rep_number = Column(String(45), nullable=False)
+    rep_number = Column(String(45))
     comments = relationship("Comment")
     facilities = relationship(
         "Facility", secondary="cafes_facilities", back_populates="cafes"
