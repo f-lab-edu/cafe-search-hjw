@@ -13,7 +13,7 @@ import sys
 sys.path.append(str(Path(__file__).resolve().parents[1] / "app"))
 from models.models import Base, UserType
 from database import get_session
-from routers import users, cafes, comments
+from routers import users, cafes, comments, likes
 from config import settings
 
 
@@ -22,6 +22,7 @@ def start_application():
     app.include_router(users.router, prefix="/users", tags=["users"])
     app.include_router(cafes.router, prefix="/cafes", tags=["cafes"])
     app.include_router(comments.router, prefix="/comments", tags=["comments"])
+    app.include_router(likes.router, prefix="/likes", tags=["likes"])
     return app
 
 
