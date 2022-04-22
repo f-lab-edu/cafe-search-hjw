@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 
-from routers import users, cafes, comments
+from routers import users, cafes, comments, likes
 from config import settings
 
 
@@ -9,6 +9,7 @@ app = FastAPI()
 app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(comments.router, prefix="/comments", tags=["comments"])
 app.include_router(cafes.router, prefix="/cafes", tags=["cafes"])
+app.include_router(likes.router, prefix="/likes", tags=["likes"])
 
 
 @app.get("/health")

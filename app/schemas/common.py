@@ -53,3 +53,13 @@ class Payload(BaseModel):
     type_id: int
     exp: int
     scopes: List[str]
+
+
+class LikeBase(BaseModel):
+    cafe_id: int
+
+
+class Like(LikeBase):
+    cafe_id: int
+    user_id: int
+    is_deleted: bool

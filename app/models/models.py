@@ -46,12 +46,15 @@ class UserType(Base, BaseMixin):
     type = Column(Enum("admin", "user"), unique=True, nullable=False)
 
 
-Table(
-    "cafes_facilities",
-    Base.metadata,
-    Column("cafe_id", ForeignKey("cafes.id"), primary_key=True),
-    Column("facility_id", ForeignKey("facilities.id"), primary_key=True),
-)
+class CafeFacility(Base):
+    __tablename__ = "cafes_facilities"
+
+    cafe_id = Column(
+        Integer, ForeignKey("cafes.id", ondelete="CASCADE"), primary_key=True
+    )
+    facility_id = Column(
+        Integer, ForeignKey("facilities.id", ondelete="CASCADE"), primary_key=True
+    )
 
 
 class Cafe(Base, BaseMixin):
@@ -80,12 +83,16 @@ class Facility(Base, BaseMixin):
     )
 
 
-Table(
-    "likes",
-    Base.metadata,
-    Column("cafe_id", ForeignKey("cafes.id"), primary_key=True),
-    Column("user_id", ForeignKey("users.id"), primary_key=True),
-)
+class Like(Base):
+    __tablename__ = "likes"
+
+    cafe_id = Column(
+        Integer, ForeignKey("cafes.id", ondelete="CASCADE"), primary_key=True
+    )
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    is_deleted = Column(Boolean, default=0, nullable=False)
 
 
 class Comment(Base, BaseMixin):

@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, Depends, Path, Security
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
-
 from database import get_session
 from schemas.comments import CommentCreate, CommentBase
 from schemas.common import User
