@@ -9,6 +9,7 @@ from sqlalchemy import (
     DateTime,
     Enum,
     Text,
+    UniqueConstraint,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -56,7 +57,7 @@ Table(
 class Cafe(Base, BaseMixin):
     __tablename__ = "cafes"
 
-    name = Column(String(200), unique=True, nullable=False)
+    name = Column(String(200), nullable=False)
     address = Column(String(200), nullable=False)
     lat = Column(Float, nullable=False)
     lon = Column(Float, nullable=False)
@@ -66,6 +67,8 @@ class Cafe(Base, BaseMixin):
         "Facility", secondary="cafes_facilities", back_populates="cafes"
     )
     liked_users = relationship("User", secondary="likes", back_populates="liked_cafes")
+
+    __table_args__ = UniqueConstraint(name, address)
 
 
 class Facility(Base, BaseMixin):

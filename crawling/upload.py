@@ -19,7 +19,7 @@ def main():
 
     df_cafes = pd.merge(left=df_cafe_list, right=df_rep_num, how="left", on=0)
     df_cafes.columns = ["place_id", "name", "address", "lat", "lon", "rep_number"]
-    df_cafes.drop_duplicates(["name"], inplace=True)
+    df_cafes.drop_duplicates(["place_id"], inplace=True)
     df_cafes.drop(columns=['place_id'], inplace=True)
 
     df_cafes.to_sql(
