@@ -68,7 +68,7 @@ class Cafe(Base, BaseMixin):
     )
     liked_users = relationship("User", secondary="likes", back_populates="liked_cafes")
 
-    __table_args__ = UniqueConstraint(name, address)
+    __table_args__ = (UniqueConstraint(name, address),)
 
 
 class Facility(Base, BaseMixin):
