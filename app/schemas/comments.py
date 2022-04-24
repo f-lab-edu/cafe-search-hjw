@@ -6,7 +6,6 @@ class CommentBase(BaseModel):
 
 
 class CommentCreate(CommentBase):
-    user_id: int
     cafe_id: int
 
 
