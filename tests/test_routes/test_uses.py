@@ -15,7 +15,7 @@ def test_create_user_exist_fail(client):
     response = client.post("/users/register", json.dumps(data))
 
     assert response.status_code == 409
-    assert response.json() == {"msg": "USER_ALREADY_EXIST"}
+    assert response.json() == {"detail": "USER_ALREADY_EXIST"}
 
 
 def test_sign_in_success(client):
@@ -39,7 +39,7 @@ def test_sign_in_not_exist_fail(client):
     )
 
     assert response.status_code == 404
-    assert response.json() == {"msg": "USER_DOES_NOT_EXIST"}
+    assert response.json() == {"detail": "USER_DOES_NOT_EXIST"}
 
 
 def test_sign_in_invalid_password_fail(client):
@@ -53,7 +53,7 @@ def test_sign_in_invalid_password_fail(client):
     )
 
     assert response.status_code == 403
-    assert response.json() == {"msg": "INVALID_PASSWORD"}
+    assert response.json() == {"detail": "INVALID_PASSWORD"}
 
 
 def test_delete_user_success(client):
@@ -94,4 +94,4 @@ def test_delete_user_permission_fail(client):
     )
 
     assert response.status_code == 403
-    assert response.json() == {"msg": "UNAUTHORIZED"}
+    assert response.json() == {"detail": "UNAUTHORIZED"}

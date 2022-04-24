@@ -23,6 +23,7 @@ class UserInDB(User):
 
 
 class Cafe(CafeBase):
+    id: int
     comments: List["Comment"] = []
     liked_users: List["User"] = []
     facilities: List["Facility"] = []
@@ -51,3 +52,4 @@ class Payload(BaseModel):
     user_id: int
     type_id: int
     exp: int
+    scopes: List[str]

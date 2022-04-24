@@ -4,7 +4,6 @@ import bcrypt
 import jwt
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-from fastapi.security.utils import get_authorization_scheme_param
 from jwt.exceptions import InvalidSignatureError, DecodeError, ExpiredSignatureError
 
 from models import models
@@ -12,7 +11,17 @@ from schemas import users, common
 from config import settings
 
 
-def check_user_exist(session: Session, username: str) -> common.User:
+def check_user_exist_by_id(session: Session, user_id: int) -> common.User:
+    user = (
+        session.query(models.User)
+        .filter(models.User.id == user_id, models.User.is_deleted == 0)
+        .first()
+    )
+    if user:
+        return user
+
+
+def check_user_exist_by_name(session: Session, username: str) -> common.User:
     user = (
         session.query(models.User)
         .filter(models.User.username == username, models.User.is_deleted == 0)
@@ -41,7 +50,7 @@ def delete_user(session: Session, username: str):
 
 
 def sign_in(session: Session, username: str, password: str) -> common.User:
-    user = check_user_exist(session, username)
+    user = check_user_exist_by_name(session, username)
     if not user:
         raise HTTPException(status_code=404, detail="USER_DOES_NOT_EXIST")
     if bcrypt.checkpw(password.encode("utf-8"), user.password.encode("utf-8")):
@@ -53,6 +62,7 @@ def create_token(user: common.User) -> str:
         "user_id": user.id,
         "type_id": user.type_id,
         "exp": datetime.utcnow() + timedelta(minutes=settings.TOKEN_EXPIRATION),
+        "scopes": ["admin"] if user.type_id == 1 else [],
     }
     access_token = jwt.encode(
         payload=payload,
@@ -62,9 +72,8 @@ def create_token(user: common.User) -> str:
     return access_token
 
 
-def decode_token(authorization: str) -> common.Payload:
+def decode_token(token: str) -> common.Payload:
     try:
-        _, token = get_authorization_scheme_param(authorization)
         decode_token = jwt.decode(
             jwt=token,
             key=settings.TOKEN_SECRET_KEY,
